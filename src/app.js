@@ -32,8 +32,8 @@ class App {
   async loadScenarios() {
     const ids = ['scenario_01', 'scenario_03', 'scenario_04', 'scenario_09'];
 
-    // Determine base path relative to public/index.html
-    const basePath = '../src/data/scenarios';
+    // Determine base path relative to root index.html
+    const basePath = './src/data/scenarios';
 
     const promises = ids.map(async (id) => {
       try {
