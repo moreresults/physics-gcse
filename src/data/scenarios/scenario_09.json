@@ -1,0 +1,114 @@
+{
+  "id": "scenario_09",
+  "title": "Remote-Controlled Car",
+  "icon": "📊",
+  "context": "A student tests a remote-controlled car on a straight track. They measure the car's velocity at 2-second intervals and record the results in the table below.",
+  "difficulty": "foundation-higher",
+  "dataTable": {
+    "headers": ["Time (s)", "Velocity (m/s)"],
+    "rows": [
+      [0, 0],
+      [2, 3],
+      [4, 6],
+      [6, 6],
+      [8, 6],
+      [10, 3]
+    ]
+  },
+  "graphSpec": {
+    "type": "velocity-time",
+    "xAxis": { "label": "Time (s)", "min": 0, "max": 12, "step": 2, "snapStep": 1 },
+    "yAxis": { "label": "Velocity (m/s)", "min": 0, "max": 8, "step": 1, "snapStep": 1 },
+    "lines": [],
+    "interactiveMode": "plot-points",
+    "expectedPoints": [
+      { "x": 0, "y": 0 },
+      { "x": 2, "y": 3 },
+      { "x": 4, "y": 6 },
+      { "x": 6, "y": 6 },
+      { "x": 8, "y": 6 },
+      { "x": 10, "y": 3 }
+    ]
+  },
+  "parts": [
+    {
+      "id": "s09_a",
+      "partLabel": "a",
+      "type": "graph_plot",
+      "marks": 2,
+      "question": "Plot the data from the table onto the velocity–time graph below. Click on the graph to place each data point.",
+      "answerSchema": {
+        "type": "graph_points",
+        "expectedPoints": [
+          { "x": 0, "y": 0, "toleranceX": 0.5, "toleranceY": 0.5 },
+          { "x": 2, "y": 3, "toleranceX": 0.5, "toleranceY": 0.5 },
+          { "x": 4, "y": 6, "toleranceX": 0.5, "toleranceY": 0.5 },
+          { "x": 6, "y": 6, "toleranceX": 0.5, "toleranceY": 0.5 },
+          { "x": 8, "y": 6, "toleranceX": 0.5, "toleranceY": 0.5 },
+          { "x": 10, "y": 3, "toleranceX": 0.5, "toleranceY": 0.5 }
+        ],
+        "markingRule": "1 mark for 4+ correct, 2 marks for all 6 correct"
+      },
+      "solutionSteps": [
+        { "text": "For each row in the table, plot the time on the x-axis and the velocity on the y-axis." },
+        { "text": "At t = 0 s, v = 0 m/s → plot at the origin." },
+        { "text": "At t = 2 s, v = 3 m/s → plot at (2, 3)." },
+        { "text": "Continue for all six data points." },
+        { "text": "Join the points with straight lines between consecutive points." }
+      ],
+      "topicTags": ["velocity-time"],
+      "skillTags": ["plot-points", "graph-construction"],
+      "misconceptionTags": ["axis-reading"]
+    },
+    {
+      "id": "s09_b",
+      "partLabel": "b",
+      "type": "graph_reading",
+      "marks": 1,
+      "question": "Using your graph, what is the velocity of the car at 6 seconds?",
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 6,
+        "tolerance": 0.5,
+        "unitOptions": ["m/s", "m/s²", "m", "s"],
+        "correctUnit": "m/s"
+      },
+      "solutionSteps": [
+        { "text": "Read up from 6 s on the x-axis to the plotted line." },
+        { "text": "Read across to the y-axis." },
+        { "text": "The velocity at 6 s is 6 m/s." }
+      ],
+      "topicTags": ["velocity-time"],
+      "skillTags": ["read-value"],
+      "misconceptionTags": []
+    },
+    {
+      "id": "s09_c",
+      "partLabel": "c",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Estimate the displacement of the car between 0 and 8 seconds using the graph.",
+      "methodMarks": [
+        { "id": "m1", "description": "Uses area under graph method (identifies shapes)", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 33,
+        "tolerance": 2,
+        "unitOptions": ["m", "m/s", "m/s²", "s", "km"],
+        "correctUnit": "m"
+      },
+      "solutionSteps": [
+        { "text": "Displacement = area under the velocity–time graph from 0 to 8 s." },
+        { "text": "Split into shapes:" },
+        { "text": "0–4 s: triangle, area = ½ × 4 × 6 = 12 m", "formula": true },
+        { "text": "4–8 s: rectangle, area = 4 × 6 = 24 m", "formula": true },
+        { "text": "Total displacement ≈ 12 + 24 = 36 m", "formula": true },
+        { "text": "Note: The exact shape between 0–4 s depends on how you draw the line. If you treat 0–2 s as a triangle (½ × 2 × 3 = 3 m) and 2–4 s as a trapezium (½ × (3+6) × 2 = 9 m), the total is 3 + 9 + 24 = 36 m. Accept answers in the range 33–36 m." }
+      ],
+      "topicTags": ["velocity-time", "displacement"],
+      "skillTags": ["area", "calculation", "estimation"],
+      "misconceptionTags": ["area-shapes"]
+    }
+  ]
+}

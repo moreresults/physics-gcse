@@ -1,0 +1,135 @@
+{
+  "id": "scenario_03",
+  "title": "Car on the Motorway",
+  "icon": "🚗",
+  "context": "A car joins a motorway from a slip road. It accelerates from rest, reaches a cruising speed, maintains it for a while, then decelerates to stop at a junction.",
+  "difficulty": "foundation-higher",
+  "graphSpec": {
+    "type": "velocity-time",
+    "xAxis": { "label": "Time (s)", "min": 0, "max": 50, "step": 10, "snapStep": 5 },
+    "yAxis": { "label": "Velocity (m/s)", "min": 0, "max": 30, "step": 5, "snapStep": 5 },
+    "lines": [
+      {
+        "id": "car",
+        "color": "line1",
+        "points": [
+          { "x": 0, "y": 0 },
+          { "x": 10, "y": 25 },
+          { "x": 30, "y": 25 },
+          { "x": 50, "y": 0 }
+        ]
+      }
+    ],
+    "areaShading": [
+      {
+        "id": "total-displacement",
+        "fromX": 0,
+        "toX": 50,
+        "description": "Total displacement = area under entire graph"
+      }
+    ]
+  },
+  "parts": [
+    {
+      "id": "s03_a",
+      "partLabel": "a",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Calculate the car's acceleration during the first 10 seconds.",
+      "methodMarks": [
+        { "id": "m1", "description": "Correct use of acceleration = change in velocity ÷ time", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 2.5,
+        "tolerance": 0,
+        "unitOptions": ["m/s", "m/s²", "m", "s"],
+        "correctUnit": "m/s²"
+      },
+      "solutionSteps": [
+        { "text": "The gradient of a velocity–time graph gives acceleration." },
+        { "text": "acceleration = (v − u) ÷ t", "formula": true },
+        { "text": "acceleration = (25 − 0) ÷ 10", "formula": true },
+        { "text": "acceleration = 2.5 m/s²", "formula": true }
+      ],
+      "topicTags": ["velocity-time", "acceleration"],
+      "skillTags": ["gradient", "calculation"],
+      "misconceptionTags": ["gradient-meaning"]
+    },
+    {
+      "id": "s03_b",
+      "partLabel": "b",
+      "type": "graph_reading",
+      "marks": 1,
+      "question": "What is the car's constant velocity between 10 s and 30 s?",
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 25,
+        "tolerance": 0,
+        "unitOptions": ["m/s", "m/s²", "m", "s"],
+        "correctUnit": "m/s"
+      },
+      "solutionSteps": [
+        { "text": "Read the value of velocity from the flat section of the graph." },
+        { "text": "Between 10 s and 30 s, the velocity is constant at 25 m/s." }
+      ],
+      "topicTags": ["velocity-time"],
+      "skillTags": ["read-value"],
+      "misconceptionTags": []
+    },
+    {
+      "id": "s03_c",
+      "partLabel": "c",
+      "type": "calculation",
+      "marks": 3,
+      "question": "Calculate the total displacement of the car during the entire 50-second journey. Show your working.",
+      "methodMarks": [
+        { "id": "m1", "description": "Splits area into correct shapes (triangle + rectangle + triangle)", "marks": 1 },
+        { "id": "m2", "description": "Correctly calculates at least one area", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 875,
+        "tolerance": 0,
+        "unitOptions": ["m", "m/s", "m/s²", "s", "km"],
+        "correctUnit": "m"
+      },
+      "solutionSteps": [
+        { "text": "The area under a velocity–time graph gives displacement." },
+        { "text": "Split into shapes: triangle (0–10 s) + rectangle (10–30 s) + triangle (30–50 s)." },
+        { "text": "Triangle 1: ½ × 10 × 25 = 125 m", "formula": true },
+        { "text": "Rectangle: 20 × 25 = 500 m", "formula": true },
+        { "text": "Triangle 2: ½ × 20 × 25 = 250 m", "formula": true },
+        { "text": "Total displacement = 125 + 500 + 250 = 875 m", "formula": true }
+      ],
+      "topicTags": ["velocity-time", "displacement"],
+      "skillTags": ["area", "calculation", "compound-shapes"],
+      "misconceptionTags": ["area-units", "area-shapes"]
+    },
+    {
+      "id": "s03_d",
+      "partLabel": "d",
+      "type": "mcq",
+      "marks": 1,
+      "question": "During which section of the journey is the car decelerating?",
+      "options": [
+        { "id": "A", "text": "0 s to 10 s" },
+        { "id": "B", "text": "10 s to 30 s" },
+        { "id": "C", "text": "30 s to 50 s" },
+        { "id": "D", "text": "The car is never decelerating" }
+      ],
+      "answerSchema": {
+        "type": "mcq",
+        "correct": "C"
+      },
+      "solutionSteps": [
+        { "text": "Deceleration means the velocity is decreasing (the object is slowing down)." },
+        { "text": "The line slopes downward between 30 s and 50 s." },
+        { "text": "This is the section where the car is decelerating." }
+      ],
+      "topicTags": ["velocity-time", "deceleration"],
+      "skillTags": ["interpretation"],
+      "misconceptionTags": ["deceleration-vs-negative-velocity"]
+    }
+  ]
+}

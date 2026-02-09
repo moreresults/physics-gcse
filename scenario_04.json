@@ -1,0 +1,136 @@
+{
+  "id": "scenario_04",
+  "title": "Train Journey",
+  "icon": "🚆",
+  "context": "A train is travelling north at 20 m/s. The driver applies the brakes and the train decelerates, coming to rest. It then reverses direction and travels south, reaching 15 m/s. Take north as the positive direction.",
+  "difficulty": "higher",
+  "graphSpec": {
+    "type": "velocity-time",
+    "xAxis": { "label": "Time (s)", "min": 0, "max": 40, "step": 10, "snapStep": 5 },
+    "yAxis": { "label": "Velocity (m/s)", "min": -15, "max": 20, "step": 5, "snapStep": 5 },
+    "lines": [
+      {
+        "id": "train",
+        "color": "line1",
+        "points": [
+          { "x": 0, "y": 20 },
+          { "x": 40, "y": -15 }
+        ]
+      }
+    ],
+    "zeroLine": true
+  },
+  "parts": [
+    {
+      "id": "s04_a",
+      "partLabel": "a",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Calculate the train's deceleration between 0 and 40 seconds. Give the magnitude (positive value) of the deceleration.",
+      "methodMarks": [
+        { "id": "m1", "description": "Correct substitution into acceleration formula", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 0.875,
+        "tolerance": 0.01,
+        "unitOptions": ["m/s²", "m/s", "m", "s"],
+        "correctUnit": "m/s²"
+      },
+      "solutionSteps": [
+        { "text": "The gradient of the velocity–time graph gives acceleration." },
+        { "text": "acceleration = (v − u) ÷ t", "formula": true },
+        { "text": "acceleration = (−15 − 20) ÷ 40 = −35 ÷ 40", "formula": true },
+        { "text": "acceleration = −0.875 m/s²", "formula": true },
+        { "text": "The magnitude of the deceleration is 0.875 m/s². The negative sign tells us the train is decelerating (in the positive/north direction) and then accelerating southward." }
+      ],
+      "topicTags": ["velocity-time", "acceleration", "deceleration"],
+      "skillTags": ["gradient", "calculation", "sign-convention"],
+      "misconceptionTags": ["sign-of-acceleration", "deceleration-meaning"]
+    },
+    {
+      "id": "s04_b",
+      "partLabel": "b",
+      "type": "mcq",
+      "marks": 1,
+      "question": "What does the negative velocity between approximately 23 s and 40 s mean?",
+      "options": [
+        { "id": "A", "text": "The train is slowing down" },
+        { "id": "B", "text": "The train is moving south (opposite to the original direction)" },
+        { "id": "C", "text": "The train has stopped" },
+        { "id": "D", "text": "The train is speeding up in the north direction" }
+      ],
+      "answerSchema": {
+        "type": "mcq",
+        "correct": "B"
+      },
+      "solutionSteps": [
+        { "text": "North was defined as the positive direction." },
+        { "text": "A negative velocity means the train is moving in the opposite direction — south." },
+        { "text": "The train has not stopped — it is still moving, just in the opposite direction." },
+        { "text": "Common mistake: negative velocity does NOT mean the object is slowing down. It means it is moving in the negative direction." }
+      ],
+      "topicTags": ["velocity-time"],
+      "skillTags": ["interpretation", "sign-convention"],
+      "misconceptionTags": ["negative-velocity-meaning"]
+    },
+    {
+      "id": "s04_c",
+      "partLabel": "c",
+      "type": "calculation",
+      "marks": 3,
+      "question": "Calculate the train's displacement between 0 and 40 seconds. State the direction.",
+      "methodMarks": [
+        { "id": "m1", "description": "Correctly identifies areas above and below the x-axis", "marks": 1 },
+        { "id": "m2", "description": "Correct calculation of at least one triangle area", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 100,
+        "tolerance": 1,
+        "unitOptions": ["m", "m/s", "m/s²", "s", "km"],
+        "correctUnit": "m",
+        "directionRequired": true,
+        "correctDirection": "north"
+      },
+      "solutionSteps": [
+        { "text": "Displacement = area under the velocity–time graph (areas below the axis are negative)." },
+        { "text": "The line crosses zero velocity. Find when: the line goes from 20 to −15 over 40 s. Using ratios: 20/35 × 40 ≈ 22.86 s (approximately 22.9 s).", "formula": true },
+        { "text": "Area above axis (positive, north): ½ × 22.86 × 20 = 228.6 m", "formula": true },
+        { "text": "Area below axis (negative, south): ½ × 17.14 × 15 = 128.6 m", "formula": true },
+        { "text": "Net displacement = 228.6 − 128.6 = 100 m north", "formula": true },
+        { "text": "The train ends up 100 m north of its starting position." }
+      ],
+      "topicTags": ["velocity-time", "displacement"],
+      "skillTags": ["area", "calculation", "sign-convention"],
+      "misconceptionTags": ["area-sign", "displacement-vs-distance"]
+    },
+    {
+      "id": "s04_d",
+      "partLabel": "d",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Calculate the total distance travelled by the train between 0 and 40 seconds.",
+      "methodMarks": [
+        { "id": "m1", "description": "Recognises distance = sum of absolute areas", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 357,
+        "tolerance": 2,
+        "unitOptions": ["m", "m/s", "m/s²", "s", "km"],
+        "correctUnit": "m"
+      },
+      "solutionSteps": [
+        { "text": "Distance is the total path length — it ignores direction, so we add the absolute values of each area." },
+        { "text": "Distance north: 228.6 m", "formula": true },
+        { "text": "Distance south: 128.6 m", "formula": true },
+        { "text": "Total distance = 228.6 + 128.6 ≈ 357 m", "formula": true },
+        { "text": "Key difference: displacement was 100 m north, but the train actually travelled about 357 m in total." }
+      ],
+      "topicTags": ["velocity-time", "displacement"],
+      "skillTags": ["area", "calculation", "distance-vs-displacement"],
+      "misconceptionTags": ["displacement-vs-distance"]
+    }
+  ]
+}

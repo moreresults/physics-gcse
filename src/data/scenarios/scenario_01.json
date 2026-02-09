@@ -1,0 +1,125 @@
+{
+  "id": "scenario_01",
+  "title": "Runner in the Park",
+  "icon": "🏃",
+  "context": "A jogger runs through a park. They start from the entrance, run along a path, stop briefly to tie their shoelace, then continue jogging at a slower pace to the pond.",
+  "difficulty": "foundation",
+  "graphSpec": {
+    "type": "distance-time",
+    "xAxis": { "label": "Time (s)", "min": 0, "max": 60, "step": 10, "snapStep": 5 },
+    "yAxis": { "label": "Distance (m)", "min": 0, "max": 200, "step": 50, "snapStep": 25 },
+    "lines": [
+      {
+        "id": "runner",
+        "color": "line1",
+        "points": [
+          { "x": 0, "y": 0 },
+          { "x": 20, "y": 120 },
+          { "x": 30, "y": 120 },
+          { "x": 60, "y": 195 }
+        ]
+      }
+    ]
+  },
+  "parts": [
+    {
+      "id": "s01_a",
+      "partLabel": "a",
+      "type": "graph_reading",
+      "marks": 1,
+      "question": "What distance has the jogger covered after 20 seconds?",
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 120,
+        "tolerance": 0,
+        "unitOptions": ["m", "km", "m/s", "s"],
+        "correctUnit": "m"
+      },
+      "solutionSteps": [
+        { "text": "Read up from 20 s on the x-axis to the line." },
+        { "text": "Read across to the y-axis." },
+        { "text": "The distance is 120 m." }
+      ],
+      "topicTags": ["distance-time"],
+      "skillTags": ["read-value"],
+      "misconceptionTags": []
+    },
+    {
+      "id": "s01_b",
+      "partLabel": "b",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Calculate the jogger's speed during the first section (0–20 s).",
+      "methodMarks": [
+        { "id": "m1", "description": "Correct use of gradient = distance ÷ time", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 6,
+        "tolerance": 0,
+        "unitOptions": ["m/s", "m/s²", "m", "s", "km/h"],
+        "correctUnit": "m/s"
+      },
+      "solutionSteps": [
+        { "text": "Identify the gradient of a distance–time graph gives speed." },
+        { "text": "speed = distance ÷ time", "formula": true },
+        { "text": "speed = 120 ÷ 20", "formula": true },
+        { "text": "speed = 6 m/s", "formula": true }
+      ],
+      "topicTags": ["distance-time"],
+      "skillTags": ["gradient", "calculation"],
+      "misconceptionTags": ["gradient-meaning"]
+    },
+    {
+      "id": "s01_c",
+      "partLabel": "c",
+      "type": "mcq",
+      "marks": 1,
+      "question": "What is the jogger doing between 20 s and 30 s?",
+      "options": [
+        { "id": "A", "text": "Speeding up" },
+        { "id": "B", "text": "Stationary (not moving)" },
+        { "id": "C", "text": "Slowing down" },
+        { "id": "D", "text": "Running backwards" }
+      ],
+      "answerSchema": {
+        "type": "mcq",
+        "correct": "B"
+      },
+      "solutionSteps": [
+        { "text": "Between 20 s and 30 s, the line is flat (horizontal)." },
+        { "text": "A horizontal line on a distance–time graph means the distance is not changing." },
+        { "text": "The jogger is stationary — they have stopped to tie their shoelace." }
+      ],
+      "topicTags": ["distance-time"],
+      "skillTags": ["interpretation"],
+      "misconceptionTags": ["flat-line-meaning"]
+    },
+    {
+      "id": "s01_d",
+      "partLabel": "d",
+      "type": "calculation",
+      "marks": 2,
+      "question": "Calculate the jogger's average speed for the entire journey (0–60 s).",
+      "methodMarks": [
+        { "id": "m1", "description": "Correct substitution of total distance and total time", "marks": 1 }
+      ],
+      "answerSchema": {
+        "type": "numeric_with_unit",
+        "correct": 3.25,
+        "tolerance": 0.1,
+        "unitOptions": ["m/s", "m/s²", "m", "s", "km/h"],
+        "correctUnit": "m/s"
+      },
+      "solutionSteps": [
+        { "text": "Average speed uses total distance and total time." },
+        { "text": "average speed = total distance ÷ total time", "formula": true },
+        { "text": "average speed = 195 ÷ 60", "formula": true },
+        { "text": "average speed = 3.25 m/s", "formula": true }
+      ],
+      "topicTags": ["distance-time"],
+      "skillTags": ["calculation", "average-speed"],
+      "misconceptionTags": ["average-vs-instantaneous"]
+    }
+  ]
+}
