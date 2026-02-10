@@ -46,7 +46,10 @@ export class Welcome {
 
       <div class="welcome-options">
         <div class="welcome-option-group">
-          <div class="welcome-option-group-title">Scenarios</div>
+          <div class="welcome-option-group-title">
+            Scenarios
+            <button class="btn btn-ghost btn-sm select-toggle">Deselect All</button>
+          </div>
           <div class="scenario-picker"></div>
         </div>
 
@@ -98,6 +101,28 @@ export class Welcome {
       picker.appendChild(card);
     }
 
+    // Select/Deselect All toggle
+    const selectToggle = screen.querySelector('.select-toggle');
+    selectToggle.addEventListener('click', () => {
+      const allSelected = this.selectedIds.size === this.scenarios.length;
+      if (allSelected) {
+        this.selectedIds.clear();
+        picker.querySelectorAll('.scenario-pick-card').forEach(c => {
+          c.classList.remove('selected');
+          c.querySelector('.scenario-pick-check').textContent = '';
+        });
+        selectToggle.textContent = 'Select All';
+      } else {
+        this.scenarios.forEach(s => this.selectedIds.add(s.id));
+        picker.querySelectorAll('.scenario-pick-card').forEach(c => {
+          c.classList.add('selected');
+          c.querySelector('.scenario-pick-check').textContent = '✓';
+        });
+        selectToggle.textContent = 'Deselect All';
+      }
+      this._updateCounts(screen);
+    });
+
     // Mode selector
     const modeButtons = screen.querySelectorAll('.mode-btn');
     modeButtons.forEach(btn => {
@@ -141,8 +166,6 @@ export class Welcome {
 
   _toggleScenario(id, card, screen) {
     if (this.selectedIds.has(id)) {
-      // Don't allow deselecting the last one
-      if (this.selectedIds.size <= 1) return;
       this.selectedIds.delete(id);
       card.classList.remove('selected');
       card.querySelector('.scenario-pick-check').textContent = '';
@@ -151,13 +174,20 @@ export class Welcome {
       card.classList.add('selected');
       card.querySelector('.scenario-pick-check').textContent = '✓';
     }
-    // Update subtitle counts
+    this._updateCounts(screen);
+  }
+
+  _updateCounts(screen) {
     const totalParts = this._countParts();
     const selectedCount = this.selectedIds.size;
     screen.querySelector('.subtitle-counts').textContent =
       `${selectedCount} Scenario${selectedCount !== 1 ? 's' : ''} · ${totalParts} Questions`;
 
-    // Update start button
+    const toggle = screen.querySelector('.select-toggle');
+    if (toggle) {
+      toggle.textContent = selectedCount === this.scenarios.length ? 'Deselect All' : 'Select All';
+    }
+
     this._updateStartBtn(screen.querySelector('.welcome-start'));
   }
 

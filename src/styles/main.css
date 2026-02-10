@@ -644,6 +644,15 @@ body {
   letter-spacing: 0.6px;
   color: var(--color-label-secondary);
   margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.welcome-option-group-title .select-toggle {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 13px;
 }
 
 /* Mode selector buttons */
