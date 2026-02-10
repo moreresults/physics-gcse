@@ -3,6 +3,8 @@
 // Shows all scenarios/parts with answered/unanswered/flagged status
 // ============================================================
 
+import { analytics } from '../lib/analytics.js';
+
 export class Review {
   constructor(container, scenarios, answers, flags, options = {}) {
     this.container = typeof container === 'string' ? document.querySelector(container) : container;
@@ -77,6 +79,7 @@ export class Review {
         `;
 
         partBtn.addEventListener('click', () => {
+          analytics.navigation.reviewJumpToPart(part.id, hasAnswer, isFlagged);
           if (this.onJump) this.onJump(thisIndex);
         });
 
@@ -89,6 +92,9 @@ export class Review {
     }
 
     screen.appendChild(list);
+
+    // Analytics: review screen viewed
+    analytics.navigation.reviewScreenViewed(answeredParts, totalParts - answeredParts, flaggedParts);
 
     // Summary
     const summary = document.createElement('div');

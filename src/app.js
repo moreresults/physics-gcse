@@ -8,6 +8,7 @@ import { TestRunner } from './components/TestRunner.js';
 import { Review } from './components/Review.js';
 import { Results } from './components/Results.js';
 import { MarkingEngine } from './lib/marking.js';
+import { analytics } from './lib/analytics.js';
 
 class App {
   constructor() {
@@ -20,8 +21,53 @@ class App {
     this.flags = {};
     this.activeScenarios = [];
     this.testRunner = null;
+    this._attemptId = null;
+    this._testTimer = null;
+    this._timerExpired = false;
+
+    // Initialise analytics
+    analytics.init({
+      apiKey: 'phc_HXeh6UCsMolYvcEsYe2AJvBm258MeuFGsPPIexlTteM',
+      debug: false,
+      env: 'prod',
+    });
+    analytics.lifecycle.appOpened();
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      analytics.ux.reducedMotionDetected();
+    }
+
+    // Abandonment handler
+    window.addEventListener('beforeunload', () => {
+      if (this.state === 'active' && this.testRunner) {
+        const parts = this.testRunner.parts;
+        const currentPart = parts[this.testRunner.currentIndex];
+        const runnerAnswers = this.testRunner.answers || {};
+        const answeredCount = Object.keys(runnerAnswers).filter(id =>
+          this._hasAnswer(runnerAnswers[id])
+        ).length;
+
+        analytics.testSession.abandoned({
+          partsAnswered: answeredCount,
+          totalParts: parts.length,
+          durationSeconds: this._testTimer ? Math.round(this._testTimer() / 1000) : 0,
+          lastPartId: currentPart ? currentPart.id : null,
+          lastScenarioId: currentPart ? currentPart._scenario.id : null,
+        });
+      }
+    });
 
     this.init();
+  }
+
+  _hasAnswer(answer) {
+    if (answer === null || answer === undefined) return false;
+    if (typeof answer === 'string') return answer !== '';
+    if (typeof answer === 'object' && !Array.isArray(answer)) {
+      return answer.value !== '' && answer.value !== null && answer.value !== undefined;
+    }
+    if (Array.isArray(answer)) return answer.length > 0;
+    return true;
   }
 
   async init() {
@@ -86,9 +132,34 @@ class App {
         this.timerSeconds = timerSeconds;
         this.answers = {};
         this.flags = {};
+        this._timerExpired = false;
         // Filter to only selected scenarios
         const selectedSet = new Set(selectedScenarioIds);
         this.activeScenarios = this.scenarios.filter(s => selectedSet.has(s.id));
+
+        analytics.lifecycle.modeSelected(mode);
+
+        // Calculate totals for analytics
+        let totalParts = 0;
+        let totalMarks = 0;
+        for (const s of this.activeScenarios) {
+          totalParts += s.parts.length;
+          totalMarks += s.parts.reduce((sum, p) => sum + p.marks, 0);
+        }
+
+        this._attemptId = `att_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        this._testTimer = analytics.startTimer();
+
+        analytics.testSession.started({
+          subject: 'physics',
+          mode,
+          attemptId: this._attemptId,
+          scenarioCount: this.activeScenarios.length,
+          totalParts,
+          totalMarks,
+          timerMinutes: Math.round(timerSeconds / 60),
+        });
+
         this.state = 'active';
         this.renderState();
       }
@@ -101,8 +172,9 @@ class App {
       timerSeconds: this.timerSeconds,
       existingAnswers: this.answers,
       existingFlags: this.flags,
-      onFinish: (answers) => {
+      onFinish: (answers, timerExpired) => {
         this.answers = answers;
+        if (timerExpired) this._timerExpired = true;
         this.state = 'results';
         this.renderState();
       },
@@ -113,6 +185,7 @@ class App {
         this.renderState();
       },
       onExit: () => {
+        analytics.clearSessionMeta();
         this.state = 'welcome';
         this.renderState();
       }
@@ -139,6 +212,67 @@ class App {
 
   _renderResults() {
     const testResult = MarkingEngine.scoreTest(this.answers, this.activeScenarios);
+
+    // --- Analytics: test completed ---
+    const answeredCount = Object.keys(this.answers).filter(id => this._hasAnswer(this.answers[id])).length;
+    const flaggedCount = Object.values(this.flags).filter(Boolean).length;
+
+    analytics.testSession.completed({
+      score: testResult.totalMarks,
+      maxMarks: testResult.maxMarks,
+      teacherMarks: 0,
+      percentage: testResult.percentage,
+      grade: testResult.grade,
+      durationSeconds: this._testTimer ? Math.round(this._testTimer() / 1000) : 0,
+      partsAnswered: answeredCount,
+      partsFlagged: flaggedCount,
+      timerExpired: this._timerExpired,
+    });
+
+    // --- Analytics: per-part and per-scenario marking ---
+    for (const scenario of this.activeScenarios) {
+      const scenResult = testResult.scenarioResults[scenario.id];
+      if (!scenResult) continue;
+
+      for (const part of scenario.parts) {
+        const partResult = scenResult.partResults[part.id];
+        if (!partResult) continue;
+
+        analytics.marking.partMarked({
+          partId: part.id,
+          partType: part.type,
+          scenarioId: scenario.id,
+          marksAwarded: partResult.marks,
+          maxMarks: partResult.maxMarks,
+          isCorrect: partResult.correct,
+          isPartiallyCorrect: !partResult.correct && partResult.marks > 0,
+          teacherMarked: false,
+          topicTags: part.topicTags || [],
+          misconceptionTags: part.misconceptionTags || [],
+        });
+
+        if (!partResult.correct && part.misconceptionTags) {
+          for (const tag of part.misconceptionTags) {
+            analytics.marking.misconceptionTriggered(
+              part.id, part.type, scenario.id, tag, part.topicTags || []
+            );
+          }
+        }
+      }
+
+      analytics.marking.scenarioMarked({
+        scenarioId: scenario.id,
+        scenarioTitle: scenario.title,
+        score: scenResult.totalMarks,
+        maxMarks: scenResult.maxMarks,
+        partsCorrect: Object.values(scenResult.partResults).filter(r => r.correct).length,
+        totalParts: scenario.parts.length,
+        durationSeconds: this._testTimer ? Math.round(this._testTimer() / 1000) : 0,
+      });
+    }
+
+    analytics.navigation.resultsViewed(testResult.totalMarks, testResult.percentage, testResult.grade);
+    analytics.clearSessionMeta();
 
     new Results(this.root, testResult, this.activeScenarios, this.answers, {
       onRetake: () => {

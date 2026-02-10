@@ -7,6 +7,7 @@ import { Graph } from './Graph.js';
 import { QuestionCard } from './QuestionCard.js';
 import { Timer } from './Timer.js';
 import { MarkingEngine } from '../lib/marking.js';
+import { analytics } from '../lib/analytics.js';
 
 export class TestRunner {
   constructor(container, scenarios, options = {}) {
@@ -35,6 +36,8 @@ export class TestRunner {
     this.graph = null;
     this.timer = null;
     this.questionCard = null;
+    this._lastTrackedScenarioId = null;
+    this._partTimer = null;
 
     this.render();
   }
@@ -115,7 +118,7 @@ export class TestRunner {
     // Timer
     if (this.timerSeconds > 0) {
       this.timer = new Timer(this.els.timerContainer, this.timerSeconds, {
-        onExpire: () => this._finishTest()
+        onExpire: () => this._finishTest(true)
       });
       this.timer.start();
     }
@@ -138,6 +141,19 @@ export class TestRunner {
     this.els.progressText.textContent = `Part ${this.currentIndex + 1} of ${this.parts.length}`;
     const pct = ((this.currentIndex + 1) / this.parts.length) * 100;
     this.els.progressBar.style.width = pct + '%';
+
+    // Analytics: track scenario and part viewed
+    if (scenario.id !== this._lastTrackedScenarioId) {
+      const scenIndex = this.scenarios.indexOf(scenario);
+      analytics.navigation.scenarioViewed(
+        scenario.id, scenario.title,
+        scenIndex >= 0 ? scenIndex : 0,
+        this.scenarios.length
+      );
+      this._lastTrackedScenarioId = scenario.id;
+    }
+    analytics.navigation.partViewed(part.id, part.type, scenario.id);
+    this._partTimer = analytics.startTimer();
 
     // Scenario header
     this.els.scenarioHeader.innerHTML = `
@@ -168,8 +184,29 @@ export class TestRunner {
             if (countEl) countEl.textContent = `Points plotted: ${points.length}`;
             const undoBtn = document.getElementById('plot-undo-btn');
             if (undoBtn) undoBtn.disabled = points.length === 0;
+
+            // Analytics: track last plotted point
+            if (points.length > 0) {
+              const lastPt = points[points.length - 1];
+              analytics.physics.graphPointPlotted({
+                partId: part.id,
+                scenarioId: scenario.id,
+                x: lastPt.x,
+                y: lastPt.y,
+                pointIndex: points.length - 1,
+              });
+            }
           },
           onValueRead: (pos) => {
+            // Analytics: track graph value read
+            analytics.physics.graphValueRead({
+              partId: part.id,
+              scenarioId: scenario.id,
+              xValue: pos.x,
+              yValue: pos.y,
+              lineId: scenario.graphSpec.lines?.[0]?.id || null,
+            });
+
             // For graph reading, auto-fill the value
             const input = this.els.questionArea.querySelector('input[type="number"]');
             if (input) {
@@ -199,8 +236,27 @@ export class TestRunner {
           if (countEl) countEl.textContent = `Points plotted: ${points.length}`;
           const undoBtn = document.getElementById('plot-undo-btn');
           if (undoBtn) undoBtn.disabled = points.length === 0;
+
+          if (points.length > 0) {
+            const lastPt = points[points.length - 1];
+            analytics.physics.graphPointPlotted({
+              partId: part.id,
+              scenarioId: scenario.id,
+              x: lastPt.x,
+              y: lastPt.y,
+              pointIndex: points.length - 1,
+            });
+          }
         };
         this.graph.onValueRead = (pos) => {
+          analytics.physics.graphValueRead({
+            partId: part.id,
+            scenarioId: scenario.id,
+            xValue: pos.x,
+            yValue: pos.y,
+            lineId: scenario.graphSpec.lines?.[0]?.id || null,
+          });
+
           const input = this.els.questionArea.querySelector('input[type="number"]');
           if (input) {
             input.value = pos.y;
@@ -220,7 +276,18 @@ export class TestRunner {
       existingAnswer: this.answers[part.id] || null,
       feedback: this.feedback[part.id] || null,
       onAnswer: (answer) => {
+        const isChange = this.answers[part.id] !== undefined;
         this.answers[part.id] = answer;
+
+        analytics.partInteraction.answered({
+          partId: part.id,
+          partType: part.type,
+          scenarioId: scenario.id,
+          marks: part.marks,
+          timeOnPartMs: this._partTimer ? this._partTimer() : 0,
+          isChange,
+          isComplete: this._isAnswerComplete(part.type, answer),
+        });
       }
     });
 
@@ -329,6 +396,13 @@ export class TestRunner {
   _toggleFlag() {
     const part = this.parts[this.currentIndex];
     this.flags[part.id] = !this.flags[part.id];
+
+    if (this.flags[part.id]) {
+      analytics.partInteraction.flagged(part.id, part.type, part._scenario.id);
+    } else {
+      analytics.partInteraction.unflagged(part.id, part.type, part._scenario.id);
+    }
+
     this._updateFlagBtn();
   }
 
@@ -356,9 +430,9 @@ export class TestRunner {
     this.container.appendChild(dialog);
   }
 
-  _finishTest() {
+  _finishTest(timerExpired = false) {
     if (this.timer) this.timer.stop();
-    if (this.onFinish) this.onFinish(this.answers);
+    if (this.onFinish) this.onFinish(this.answers, timerExpired);
   }
 
   // Public: jump to specific part index (used by Review screen)
@@ -366,6 +440,20 @@ export class TestRunner {
     if (index >= 0 && index < this.parts.length) {
       this.currentIndex = index;
       this._renderCurrentPart();
+    }
+  }
+
+  _isAnswerComplete(partType, answer) {
+    if (!answer) return false;
+    switch (partType) {
+      case 'mcq': return answer !== null;
+      case 'graph_plot': return Array.isArray(answer) && answer.length > 0;
+      case 'graph_reading':
+      case 'numeric_with_unit':
+        return typeof answer === 'object' && answer.value !== null && answer.value !== '';
+      case 'calculation':
+        return answer !== null && answer !== '';
+      default: return true;
     }
   }
 

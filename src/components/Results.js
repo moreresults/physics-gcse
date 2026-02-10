@@ -4,6 +4,7 @@
 // ============================================================
 
 import { Graph } from './Graph.js';
+import { analytics } from '../lib/analytics.js';
 
 export class Results {
   constructor(container, testResult, scenarios, answers, options = {}) {
@@ -214,6 +215,13 @@ export class Results {
         }
 
         partCard.appendChild(detail);
+
+        partCard.addEventListener('toggle', () => {
+          if (partCard.open) {
+            analytics.navigation.questionReviewExpanded(part.id, part.type, partResult.correct);
+          }
+        });
+
         scenBlock.appendChild(partCard);
       }
 

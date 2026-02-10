@@ -3,6 +3,8 @@
 // States: normal → warning (≤5 min) → critical (≤2 min)
 // ============================================================
 
+import { analytics } from '../lib/analytics.js';
+
 export class Timer {
   constructor(container, totalSeconds, options = {}) {
     this.container = typeof container === 'string' ? document.querySelector(container) : container;
@@ -13,6 +15,8 @@ export class Timer {
     this.running = false;
     this.intervalId = null;
     this.paused = false;
+    this._warningFired = false;
+    this._criticalFired = false;
 
     this.render();
   }
@@ -43,10 +47,21 @@ export class Timer {
       this.remaining--;
       this._update();
 
+      // Analytics: timer state transitions
+      if (this.remaining <= 300 && !this._warningFired && this.remaining > 120) {
+        analytics.timer.warningReached(Math.ceil(this.remaining / 60));
+        this._warningFired = true;
+      }
+      if (this.remaining <= 120 && !this._criticalFired && this.remaining > 0) {
+        analytics.timer.criticalReached(Math.ceil(this.remaining / 60));
+        this._criticalFired = true;
+      }
+
       if (this.remaining <= 0) {
         this.remaining = 0;
         this.stop();
         this._update();
+        analytics.timer.expired();
         if (this.onExpire) this.onExpire();
       }
 
